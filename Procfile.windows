@@ -1,1 +1,1 @@
-web: python mail.py
+web: python main.py

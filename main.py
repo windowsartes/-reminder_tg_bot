@@ -5,15 +5,31 @@ from data_source import DataSourse
 import threading
 import time
 import datetime
-
-TOKEN = os.getenv("TOKEN")
-ENTER_MESSAGE, ENTER_TIME = range(2)
+import logging
+import sys
 
 ADD_REMINDER_TEXT = 'Add a reminder ⏰'
-
 INTERVAL = 30
 
+MODE = os.getenv("MODE")
+TOKEN = os.getenv("TOKEN")
+ENTER_MESSAGE, ENTER_TIME = range(2)
 dataSource = DataSourse(os.environ.get("DATABASE_URL"))
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger()
+
+if MODE == 'dev':
+    def run():
+        logger.info("Start in DEV mode")
+        updater.start_polling()
+elif MODE == 'prod':
+    def run():
+        logger.info("Start in DEV mode")
+        updater.start_webhook(listen='0.0.0.0', port=int(os.environ.get("PORT", "8443")), url_path=TOKEN,
+                              webhook_url='https://{}.herokuapp.com/{}'.format(os.environ.get("APP_NAME"), TOKEN))
+else:
+    logger.error("No mode specified")
+    sys.exit(1)
 
 def start_handler(update, context):
     update.message.reply_text("Hello, creator!", reply_markup=add_reminder_button())
@@ -64,5 +80,5 @@ if __name__ == "__main__":
     )
     updater.dispatcher.add_handler(conv_handler)
     dataSource.create_table()
-    updater.start_polling()
+    run()
     start_check_reminders()

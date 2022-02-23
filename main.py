@@ -24,7 +24,7 @@ if MODE == 'dev':
         updater.start_polling()
 elif MODE == 'prod':
     def run():
-        logger.info("Start in DEV mode")
+        logger.info("Start in PROD mode")
         updater.start_webhook(listen='0.0.0.0', port=int(os.environ.get("PORT", "8443")), url_path=TOKEN,
                               webhook_url='https://{}.herokuapp.com/{}'.format(os.environ.get("APP_NAME"), TOKEN))
 else:
